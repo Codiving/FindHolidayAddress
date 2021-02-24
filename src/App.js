@@ -1,23 +1,28 @@
-import React from "react";
+import { AppBar, Box, makeStyles, Tab, Tabs } from "@material-ui/core";
 import { FindAddress, FindHoliday } from "components";
-import {
-  Box,
-  Typography,
-  AppBar,
-  makeStyles,
-  Tabs,
-  Tab,
-} from "@material-ui/core";
+import React from "react";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
     backgroundColor: theme.palette.background.paper,
+    height: "100%",
+  },
+  container: {
+    height: "100%",
+    background: "white",
+  },
+}));
+
+const appBarStyle = makeStyles(() => ({
+  root: {
+    height: "100%",
   },
 }));
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
+  const classes = useStyles();
 
   return (
     <div
@@ -25,19 +30,17 @@ function TabPanel(props) {
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
+      className={classes.container}
       {...other}
     >
-      {value === index && (
-        <Box p={3}>
-          <Typography>{children}</Typography>
-        </Box>
-      )}
+      {value === index && <Box p={3}>{children}</Box>}
     </div>
   );
 }
 
 const App = () => {
   const classes = useStyles();
+  const appStyles = appBarStyle();
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event, newValue) => {
@@ -46,7 +49,7 @@ const App = () => {
 
   return (
     <div className={classes.root}>
-      <AppBar position="static">
+      <AppBar position="static" classes={appStyles}>
         <Tabs
           value={value}
           onChange={handleChange}
