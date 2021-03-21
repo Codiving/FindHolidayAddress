@@ -1,23 +1,27 @@
 import { AppBar, Box, makeStyles, Tab, Tabs } from "@material-ui/core";
 import { FindAddress, FindHoliday } from "components";
-import React from "react";
+import React, { useCallback, useState } from "react";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   root: {
     flexGrow: 1,
     backgroundColor: theme.palette.background.paper,
-    height: "100%",
+    height: "100%"
   },
   container: {
     height: "100%",
-    background: "white",
+    background: "white"
   },
+  tab__item: {
+    height: "calc(100% - 48px)",
+    overflow: "hidden"
+  }
 }));
 
 const appBarStyle = makeStyles(() => ({
   root: {
-    height: "100%",
-  },
+    height: "100%"
+  }
 }));
 
 function TabPanel(props) {
@@ -28,12 +32,15 @@ function TabPanel(props) {
     <div
       role="tabpanel"
       hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
+      id={`tabpanel-${index}`}
       className={classes.container}
       {...other}
     >
-      {value === index && <Box p={3}>{children}</Box>}
+      {value === index && (
+        <Box p={3} className={classes.tab__item}>
+          {children}
+        </Box>
+      )}
     </div>
   );
 }
@@ -41,11 +48,11 @@ function TabPanel(props) {
 const App = () => {
   const classes = useStyles();
   const appStyles = appBarStyle();
-  const [value, setValue] = React.useState(0);
+  const [value, setValue] = useState(0);
 
-  const handleChange = (event, newValue) => {
+  const handleChange = useCallback((event, newValue) => {
     setValue(newValue);
-  };
+  }, []);
 
   return (
     <div className={classes.root}>
@@ -53,7 +60,12 @@ const App = () => {
         <Tabs
           value={value}
           onChange={handleChange}
-          aria-label="simple tabs example"
+          TabIndicatorProps={{
+            style: {
+              backgroundColor: "yellow",
+              border: 2
+            }
+          }}
         >
           <Tab label="공휴일찾기" />
           <Tab label="주소찾기" />

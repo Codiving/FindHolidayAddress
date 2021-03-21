@@ -7,35 +7,35 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TextField,
+  TextField
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import request from "request";
 
-const API_KEY = "";
+const API_KEY = process.env.REACT_APP_ADDR_KEY;
 const countPerPage = 100;
 
-const getUrl = (curPage) =>
-  `https://www.juso.go.kr/addrlink/addrLinkApi.do?confmKey=${API_KEY}&currentPage=${curPage}&countPerPage=${countPerPage}&keyword=강남&resultType=json`;
+const getUrl = (curPage, keyword) =>
+  `https://www.juso.go.kr/addrlink/addrLinkApi.do?confmKey=${API_KEY}&currentPage=${curPage}&countPerPage=${countPerPage}&keyword=${keyword}&resultType=json`;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
-    height: "100%",
+    height: "100%"
   },
   search__container: {
-    display: "flex",
+    display: "flex"
   },
   text: {
-    marginRight: 10,
+    marginRight: 10
   },
   table__container: {
     marginTop: 30,
-    width: "70%",
+    width: "70%"
   },
   zipno: {
-    width: 50,
-  },
+    width: 50
+  }
 }));
 
 const FindAddress = () => {
@@ -44,36 +44,40 @@ const FindAddress = () => {
   const [keyword, setKeyword] = useState("");
   const [addrs, setAddrs] = useState([]);
 
-  const search = () => {
+  const search = useCallback(() => {
     const options = {
       method: "GET",
-      url: getUrl(1),
+      url: getUrl(1, keyword),
       headers: {
-        Cookie: "elevisor_for_j2ee_uid=3pb5dyr4kp1nj",
-      },
+        Cookie: "elevisor_for_j2ee_uid=3pb5dyr4kp1nj"
+      }
     };
+
     request(options, function (error, response) {
       if (error) throw new Error(error);
       setAddrs(JSON.parse(response.body).results.juso);
     });
-  };
+  }, [keyword]);
+
+  const handleKeyword = useCallback(e => setKeyword(e.target.value), []);
 
   return (
     <div>
       <div className={classes.search__container}>
         <TextField
           className={classes.text}
+          margin="dense"
           label="검색어"
           variant="outlined"
           value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
+          onChange={handleKeyword}
         />
         <Button variant="contained" onClick={search}>
           검색
         </Button>
       </div>
       <TableContainer component={Paper} className={classes.table__container}>
-        <Table size="small" aria-label="a dense table">
+        <Table size="small">
           <TableHead>
             <TableRow className={classes.row}>
               <TableCell className={classes.zipno}>우편번호</TableCell>
@@ -82,13 +86,18 @@ const FindAddress = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {addrs.map((row) => (
-              <TableRow key={row.roadAddr}>
-                <TableCell>{row.zipNo}</TableCell>
-                <TableCell>{row.jibunAddr}</TableCell>
-                <TableCell>{row.roadAddr}</TableCell>
-              </TableRow>
-            ))}
+            {addrs.map(row => {
+              const { roadAddr, zipNo, jibunAddr } = row;
+              const key = roadAddr.concat(zipNo).concat(jibunAddr);
+
+              return (
+                <TableRow key={key}>
+                  <TableCell>{zipNo}</TableCell>
+                  <TableCell>{jibunAddr}</TableCell>
+                  <TableCell>{roadAddr}</TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
